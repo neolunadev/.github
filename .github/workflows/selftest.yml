@@ -1,0 +1,11 @@
+name: selftest
+on:
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  house:
+    uses: ./.github/workflows/house.yml
+    with:
+      markdownlint: false
