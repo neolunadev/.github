@@ -1,0 +1,29 @@
+name: CI
+
+# Every neolunadev repo calls house.yml@main, so a broken change here breaks CI
+# everywhere. This repo runs house.yml on itself and lints the workflows first.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: actionlint
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7.7 -color
+
+  house:
+    uses: ./.github/workflows/house.yml
+    with:
+      markdownlint: false
