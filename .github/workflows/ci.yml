@@ -27,3 +27,5 @@ jobs:
     uses: ./.github/workflows/house.yml
     with:
       markdownlint: false
+      # Public repo: GitHub-hosted minutes are free here, and the org's runners refuse it.
+      runner: '"ubuntu-latest"'
