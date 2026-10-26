@@ -64,7 +64,9 @@ jobs:
           [ -f "$c/$f" ] || curl -sSfL -o "$c/$f" "https://github.com/gitleaks/gitleaks/releases/download/v$V/$f"
           echo "$sum  $c/$f" | sha256sum -c - || { rm -f "$c/$f"; exit 1; }
           case "$f" in *.zip) unzip -oq "$c/$f" -d "$t" ;; *) tar -xzf "$c/$f" -C "$t" ;; esac
-          "$t/gitleaks" git . --redact --no-banner
+          # HEAD's history only: fetch-depth 0 also fetches every other branch, and gitleaks'
+          # default --all would fail this PR for what another open PR adds.
+          "$t/gitleaks" git . --redact --no-banner --log-opts=HEAD
 
   docs:
     name: docs
