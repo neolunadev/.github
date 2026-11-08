@@ -103,8 +103,10 @@ jobs:
       # House style: no em dashes in new writing. Checks only lines this PR adds.
       - name: No em dashes in added lines
         if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          if git diff -U0 "origin/${{ github.base_ref }}...HEAD" -- '*.md' | grep '^+[^+]' | grep -n $'—'; then
+          if git diff -U0 "origin/${BASE_REF}...HEAD" -- '*.md' | grep '^+[^+]' | grep -n $'—'; then
             echo "::error::Em dash in added Markdown. Recast with a comma, colon or full stop."
             exit 1
           fi
@@ -119,6 +121,8 @@ jobs:
           fetch-depth: 0
       - name: No data files added
         if: github.event_name == 'pull_request' && !inputs.allow-data
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           bad=0
           while IFS= read -r f; do
@@ -128,7 +132,7 @@ jobs:
               *.csv|*.json|*.parquet)
                 if [ "$(wc -c < "$f")" -gt 1048576 ]; then echo "::error file=$f::Data file over 1 MB. Tabular data goes in Supabase; small test data goes in a fixtures folder."; bad=1; fi ;;
             esac
-          done < <(git diff --name-only --diff-filter=A "origin/${{ github.base_ref }}...HEAD")
+          done < <(git diff --name-only --diff-filter=A "origin/${BASE_REF}...HEAD")
           exit $bad
 
   # Conventional Commits in the PR title, which becomes the squash commit.
